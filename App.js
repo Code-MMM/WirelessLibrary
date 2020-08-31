@@ -29,7 +29,25 @@ export default class App extends React.Component {
   {
     defaultNavigationOptions: ({navigation})=>({
       tabBarIcon: ()=>{
-        
+        const routeName = navigation.state.routeName;
+        console.log(routeName)
+        if(routeName === "Transaction"){
+          return(
+            <Image
+            source={require("./images/book.png")}
+            style={{width:40, height:40}}
+          />
+          )
+          
+        }
+        else if(routeName === "Search"){
+          return(
+            <Image
+            source={require("./images/searchingbook.png")}
+            style={{width:40, height:40}}
+          />)
+          
+        }
       }
     })
   }
