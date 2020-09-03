@@ -52,9 +52,8 @@ export default class TransactionScreen extends React.Component {
     }
 
     async BookEledigible(bookID) {
-      var bookRef = await db.collection("Books").where("Book ID", "==", bookID).get()
+      var bookRef = await db.collection("Books").where("Book ID", "==", this.state.scannedBookID).get()
       var type = "";
-      console.log(bookRef.docs)
       if (bookRef.docs.length == 0) {
         type = false
       }
@@ -69,16 +68,14 @@ export default class TransactionScreen extends React.Component {
           }
         })
       }
-console.log(type)
       return type
       
 
     }
 
-    async StudentEledigible(studentID) {
-      var studentRef = await db.collection("Students").where("Student ID", "==", studentID).get()
+    async StudentEledigible() {
+      var studentRef = await db.collection("Students").where("ID", "==", this.state.scannedStudentID).get()
       var type = "";
-      console.log(studentRef.docs)
       if (studentRef.docs.length == 0) {
         this.setState({
           scannedStudentID: "",
@@ -98,7 +95,6 @@ console.log(type)
           }
         })
       }
-      console.log(type)
 
       return type
 
@@ -106,11 +102,12 @@ console.log(type)
     
 
     initiateBookIssue = async()=>{
+      alert("Issued Book " + this.state.scannedBookID + " To the student " + this.state.scannedStudentID)
 
       //add a transaction
       db.collection("Transactions").add({
-        'Student ID': this.state.scannedStudentID,
-        'Book ID' : this.state.scannedBookID,
+        'StudentID': this.state.scannedStudentID,
+        'BookID' : this.state.scannedBookID,
         'Date' : firebase.firestore.Timestamp.now().toDate(),
         'Type': "Issue"
       })
@@ -126,9 +123,11 @@ console.log(type)
 
     initiateBookReturn = async()=>{
       //add a transaction
+      alert(this.state.scannedStudentID + " has returned book " + this.state.scannedBookID)
+
       db.collection("Transactions").add({
-        'Student ID': this.state.scannedStudentID,
-        'Book ID' : this.state.scannedBookID,
+        'StudentID': this.state.scannedStudentID,
+        'BookID' : this.state.scannedBookID,
         'Date' : firebase.firestore.Timestamp.now().toDate(),
         'Type': "Return"
       })
@@ -142,11 +141,8 @@ console.log(type)
       })
     }
 
-    handleTransaction =  ()=>{
-      console.log("handled")
-      var transType =  this.BookEledigible(this.state.scannedBookID);
-      console.log(transType)
-      if (!transType) {
+    async handleTransaction() {
+      if (!await this.BookEledigible()) {
         console.log("The Book Does Not Exist In The Database.")
         this.setState({
           scannedStudentID: "",
@@ -154,9 +150,8 @@ console.log(type)
         })
       }
 
-      else if (transType === "Issue") {
-        var studentEledigible = this.StudentEledigible(this.scannedStudentID);
-        console.log("Issued")
+      else if (await this.BookEledigible() == "Issue") {
+        var studentEledigible = await this.StudentEledigible();
         if (!studentEledigible) {
           console.log("Student has reached limit of books issued.")
             this.setState({
@@ -173,17 +168,19 @@ console.log(type)
             var book = doc.data()
             if(book.Availability){
                 this.initiateBookIssue();       
-                transactionMessage = "Book Issued"
-                console.log(transactionMessage)
+               transactionMessage = "Book Issued"
             }
             else{
                 this.initiateBookReturn();
                 transactionMessage = "Book Returned"
-                console.log(transactionMessage)
             }
     })
         }
       }
+
+    else {
+      this.initiateBookReturn()
+    }
 }
 
   
