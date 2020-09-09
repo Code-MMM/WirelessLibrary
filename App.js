@@ -1,12 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import {createAppContainer} from 'react-navigation'
+import {createAppContainer, createSwitchNavigator} from 'react-navigation'
 import * as permissions from 'expo-permissions';
 import {BarCodeScanner} from 'expo-barcode-scanner';
 
 import TransactionScreen from './screens/Transaction';
 import SearchScreen from './screens/Search';
+import LoginScreen from "./screens/Login";
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 export default class App extends React.Component {
@@ -53,9 +54,12 @@ export default class App extends React.Component {
   }
   );
 
-  const AppContainer = createAppContainer(TabNavigator);
+  const SwitchNavigator = createSwitchNavigator({
+    LoginScreen:{screen: LoginScreen},
+    TabNavigator: {screen: TabNavigator}
+  })
 
-  
+    const AppContainer = createAppContainer(SwitchNavigator);
 
 const styles = StyleSheet.create({
   container: {

@@ -95,6 +95,25 @@ export default class TransactionScreen extends React.Component {
           }
         })
       }
+      var bookRef = await db.collection("Books").where("Book ID", "==", this.state.scannedBookID).get()
+      if (bookRef.Availability === false) {
+        var transRef = await db.collection("Transactions").where("BookID", "==", this.state.scannedBookID).limit(1).get()
+        transRef.docs.map((doc)=>{
+          if (doc.exists) {
+             var trans = doc.data();
+          if (trans.StudentID === this.state.scannedStudentID) {
+            type = true
+          }
+          else {
+            type = false
+            alert("Book was not issued by student.")
+          }
+        }    
+      }
+        )
+      }
+        
+         
 
       return type
 
